@@ -4,12 +4,12 @@ import json
 def reset_annotation(session):
     if os.path.isfile(session['annot_fp']):
         os.remove(session['annot_fp'])
-
+    accepted_formats = (".mp3", ".ogg")
     files = [
         {"file": file,
          "class":"",
          "obs": ""
-         } for file in os.listdir(session['audio_dir'])]
+         } for file in os.listdir(session['audio_dir'])  if file.endswith(accepted_formats)]
     classes = []
     session['annot'] = {"classes": classes, "files": files}
     session['file_idx'] = 0
