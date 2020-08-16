@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        {% block head %}
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <nav class="navbar navbar-dark bg-dark mb-4"> 
+            <div class="container"> 
+              <a class="navbar-brand mx-auto text-center" href="/">
+                <img class="my-2" src="{{ url_for('static', filename='img/logo.svg') }}">
+              </a>
+            </div> 
+        </nav> 
+        {% block styles %}
+            <!-- Bootstrap CSS -->
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}"/>
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+        {% endblock %}
+
+        <title>{% block title %} {% endblock %}</title>
+        
+        {% endblock %}
+    </head>
+    <body>
+        <div id="loader" class="center"></div> 
+        <div class="container body-container">
+            <!-- Your page content -->
+            {% block content %}{% endblock %}
+        </div>
+        {% block scripts %}
+            <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+            <!-- {{ bootstrap.load_js() }} -->
+            <script type="text/javascript">             
+            document.onreadystatechange = function() { 
+                if (document.readyState !== "complete") { 
+                    $("nav").hide(); 
+                    $(".body-container").hide(); 
+                    $("#loader").show(); 
+                } else { 
+                    $("#loader").hide(); 
+                    $("nav").show(); 
+                    $(".body-container").show(); 
+                } 
+            }; 
+            </script>
+        {% endblock %}
+    </body>
+</html>

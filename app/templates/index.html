@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}Annotator Setup{% endblock %}
+{% block content %}
+<div class="row">
+	<div class="col">
+		{% if num_files == 0 %}
+		<div id="no-files-container">
+			<div class="bottom-divider">
+				<h1>Startup error</h1>
+		 		<h4>No files were found in the data folder.</h4>
+				<span>Please move all audio files to the <i>'/audio_data'</i> folder and try again.</span>	
+			</div>
+		</div>
+		{% else %}
+ 		<!-- Startup buttons -->
+		<div id="startup-buttons">
+			<div class="row">
+				<div class="col-6 bottom-divider">
+					<h1>Hello :)</h1>
+			 		<h4>There are {{num_files}} files detected in the data folder</h4>
+					<span>Start a new annotation session or continue a previous one?</span>	
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-3">
+					<button data-toggle="collapse" data-target="#new-session" class="btn btn-success w-100" id="new-session-btn">New Session</button>
+				</div>
+				<div class="col-3">
+				    <button data-toggle="collapse" data-target="#load-session" class="btn btn-info w-100" id="load-session-btn">Load previous Session</button>
+				</div>
+				<div class="col-6"></div>
+			</div>
+		</div>
+
+		<!-- New session -->
+		<div id="new-session" class="home-section collapse">
+			<div class="row">
+				<div class="col-8">
+					<h1>New annotation session setup</h1>
+	 				<h5>First, set up the classes we'll be annotating for:</h5>
+	 			</div>
+	 		</div>
+			<div class="row">
+				<div class="col-8">
+					<!-- Add class -->
+					<form id="add-class-form" class="setup-classes-form" action="add">
+						<div class="input-group">
+						  <input type="text" id="class-label-input-text" class="form-control" placeholder="Class label">
+						  <div class="input-group-append">
+						    <button class="btn btn-outline-primary" data-trigger="manual" data-toggle="tooltip" title="Class already exists!" id="add-classes-btn">Add Class</button>
+						  </div>
+						</div>
+				    </form>	
+
+				    <div class="row mt-2">
+				    	<div class="col-3 pr-0">
+				    		<!-- Reset Btn -->
+							<form id="reset-form" class="setup-classes-form" action="reset">
+						    	<button class="d-none btn float-right btn-danger w-100" id="reset-classes-btn">Reset</button>
+						    </form>
+				    	</div>
+					
+						<div class="col-9">
+							<form id="start-form" class="setup-classes-form" action="start">
+						    	<button class="btn float-right btn-success w-100" id="start_annotation">Start Annotating</button>
+						    </form>	
+					    </div>
+					</div>
+				</div>
+				<!-- Class list component -->
+				<div class="col-4">
+					<div id='class-list' >{% include 'class_table.html' %}</div>
+					
+				</div>
+			</div>	
+		</div>
+
+		<!-- Load session -->
+		<div id="load-session" class="home-section collapse">
+			<div class="row">
+				<div class="col-6 bottom-divider">
+					<h1>Load annotation session</h1>
+	 				<h5 id="upload-instruction">Please upload the .json annotation file</h5>
+	 			</div>
+	 		</div>
+			<div class="row">
+				<div class="col-6">
+					<div id='session-info-container'></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-6 mt-2">
+					<div id="upload-btn-container">
+						<form action="{{ url_for('upload_annotation') }}" method="post" enctype="multipart/form-data" id="file-input-form">
+							<label id="upload-btn-label" class="btn btn-primary w-100">
+                				<span class="icon-upload3"></span>
+							    Upload <input hidden accept="application/JSON" id="inputFile" type="file" name="file"/>
+							</label>
+						</form>
+					</div>
+				</div>
+				<div class="col-6"></div>
+			</div>
+		</div>
+		
+		<!-- Alert -->
+		<div class="rounded p-2 my-4 fade alert-danger" id="alert" role="alert" active-class="in alert">
+			<span id="alert-text"></span>
+			<button type="button" class="close" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+
+		{% endif %}
+	</div>
+</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+ <script type="text/javascript">
+ 	$(document).ready(function() {
+ 		// Setup alert closing btn
+ 		$('#alert > button').on("click", function(e){
+    		$('#alert').removeClass('show');
+ 		})
+
+ 		// Return Btn
+ 		$(".return-btn").on("click", function(e){
+ 			$("#startup-buttons").show();
+ 		});
+ 		$("#return-btn-loadfile > .return-btn").on("click", function(e) {
+ 			$("#session-info-container").html("");
+ 			$("#upload-btn-container").show();
+ 			$("#return-btn-loadfile").addClass("d-none");
+ 		})
+
+ 		// Start/Load session btns
+ 		$("#new-session-btn, #load-session-btn").on("click", function(e){
+ 			e.preventDefault();
+ 			$("#startup-buttons").hide();
+ 		});
+
+ 		// Upload json
+ 		$("#inputFile").on("change", function(e){
+ 			e.preventDefault();
+ 			var formData = new FormData($("#file-input-form")[0]);
+ 			$.ajax({
+ 		        url: "{{url_for('upload_annotation')}}",
+ 		        type: 'POST',
+		        data: formData,
+		        async: false,
+		        cache: false,
+		        contentType: false,
+		        enctype: 'multipart/form-data',
+		        processData: false,
+		        success: function(response){
+		        	$("#session-info-container").html(response);
+		        	
+		        	$("#session-info-container > .card > .card-footer").html("<button  id='resume-session-btn' class='btn btn-success btn-block'>Resume session</button>");
+		        	$("#upload-btn-label").html("<span class='icon-upload3'></span>&nbsp;Upload new file<input hidden id='inputFile' type='file' name='file'/>");
+		        	$("#upload-btn-container").addClass('float-right');
+		        	$("#upload-instruction").hide();
+		        	$("#return-btn-loadfile").removeClass('d-none')
+		        	
+		        	// Resume session
+		        	$("#resume-session-btn").on('click', function(e){
+		        		e.preventDefault();
+		    			window.location = "{{ url_for('annotate') }}"
+		        	})
+		        },
+		        error: function(response){
+		        	if (response.responseText == 'invalid-json-file') {
+		        		$('#alert-text').html("Uploaded file is not valid. Please double check and try again or start a new annotation session.");
+			    		$('#alert').addClass('show');
+			    		setTimeout(function () {
+					        $('#alert').removeClass('show');
+					      }, 5000);
+		        	}
+		        	else if (response.responseText == 'json-with-missing-files') {
+		        		$('#alert-text').html("The uploaded .json has annotations for files not detected in the data folder. All annotated files must be present to resume a session.");
+			    		$('#alert').addClass('show');
+		        	}
+		        }
+		   });
+		   return false;
+ 		});
+
+ 		
+ 		// Class setup
+ 		$('#class-list').on('click', ".exclude-class-btn", function(e) {
+ 			var id = $(this).attr('class_idx');
+ 			$.ajax({
+		    	type: "GET",
+		        url: "{{ url_for('setup_classes') }}",
+		        data: {
+		        	'action': 'remove',
+		        	'payload': id,
+		        },
+		        success: function(response) {
+					$("#class-list").html(response);
+		        }
+		    });
+ 		})
+
+ 		$(".setup-classes-form").on("submit", function(e) {
+		    e.preventDefault();
+		    var action = $(this).attr('action');
+		    $.ajax({
+		    	type: "GET",
+		        url: "{{ url_for('setup_classes') }}",
+		        data: {
+		        	'action': action,
+		        	'payload':$(this).find('input').val()
+		        },
+		        success: function(response) {
+		        	if (action == 'start'){
+		        		document.open();
+						document.write(response);
+						document.close();
+		        	}
+		        	else if (action == 'add') {
+		        		$("#class-list").html(response);
+		        		$("#class-label-input-text").val("");
+		        		$("#class-label-input-text").focus();
+		        		$("#reset-classes-btn").removeClass("d-none");
+		        		$('#alert').removeClass('show');
+		        	}
+		        	else if (action == 'reset') {
+		        		$("#class-list").html(response);
+		        		$("#class-label-input-text").val("");
+		        		$("#class-label-input-text").focus();
+		        		$("#reset-classes-btn").addClass("d-none");
+		        	}
+			    },
+			    error: function(response){
+			    	// Duplicate class tooltip
+			    	if (response.responseText == 'duplicate-class') {
+			    		$('#add-classes-btn').tooltip('show')
+		        		setTimeout(function () {
+					        $('#add-classes-btn').tooltip('hide');
+					      }, 2500);
+			    	}
+			    	// Not enough classes alert
+			    	else if (response.responseText == 'not-enough-classes') {
+			    		$('#alert-text').html("Make sure that there are at least <b>Two valid classes</b> :)");
+			    		$('#alert').addClass('show');
+			    		setTimeout(function () {
+					        $('#alert').removeClass('show');
+					      }, 5000);
+			    	}
+			    }
+	    	});
+		});
+	});
+ </script>
+ {% endblock %}

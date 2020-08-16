@@ -1,0 +1,34 @@
+{% if not display_only %}
+{% set display_only=False %}
+{% endif %}
+
+{% if classes|length > 0 %}
+<table class="table table-striped table-bordered table-sm text-center m-0 p-0">
+	<thead>
+	    <tr>
+	      <th scope="col">Class label</th>
+	      <th scope="col">Index</th>
+	      {% if not display_only %}
+	      <th scope="col">Exclude</th>
+	      {% endif %}
+	    </tr>
+	  </thead>
+	  <tbody>
+	  	<!-- <form method="post" id="remove-class-form" do="remove"> -->
+		  	{% for class in classes %}
+		  	<tr>
+			    <td>{{ class.class_label }}</td>
+				<td>{{ class.index }}</td>
+				{% if not display_only %}
+				<td>
+					<button type="submit" class="btn p-0 exclude-class-btn" class_idx="{{class.index}}">
+						<span class="icon-remove"></span>
+					</button>
+				</td>
+				{% endif %}	
+			</tr>
+			{% endfor %}
+		<!-- </form> -->
+	  </tbody>
+</table>
+{% endif %}

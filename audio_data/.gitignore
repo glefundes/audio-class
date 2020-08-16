@@ -1,0 +1,4 @@
+# Track empty dir in git repo
+*
+*/
+!.gitignore

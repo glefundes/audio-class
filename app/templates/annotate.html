@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+{% block title %}Audio annotation tool{% endblock %}
+
+{% block content %}
+<div class="d-flex row annotate-row">
+	<!-- Player container -->
+	<div  class="col-4 player-container">
+
+		<!-- Player Core -->
+		<div class="row-8">
+			<div class="col">
+				
+				<div class="player-core">
+				    {% with files=annot["files"], file_idx=file_idx %}
+				    
+				    {% include "player.html" %}
+					
+					{% endwith %}
+	    		</div>
+	    	</div>
+	    </div>
+	
+		<!-- Player Controls -->
+		<div class="d-flex row-2">
+	    	<div class="col ">
+				<form class="text-center text-light" id="first_form" name="first">
+			    	<button class="btn btn-light player-control" id="first_file_btn">
+						<!-- <i class="fas color-dark fa-step-backward fa-2x"></i> -->
+						<span class="icon-angle-double-left icon-large"></span>
+			    	</button>
+			    	First
+			    </form>	
+			</div>
+			<div class="col ">
+				<form class="text-center text-light" id="prev_form" name="prev">
+		    		<button class="btn btn-light player-control" id="prev_file_btn">
+						<!-- <i class="fas color-dark fa-chevron-left fa-2x"></i> -->
+						<span class="icon-angle-left icon-large"></span>
+		    		</button>
+		    		Prev
+		    	</form>
+			</div>
+			<div class="col ">
+				<form class="text-center text-light" id="next_form" name="next">
+			    	<button class="btn btn-light player-control" id="next_file_btn">
+			    		<!-- <i class="fas color-dark fa-chevron-right fa-2x"></i> -->
+			    		<span class="icon-angle-right icon-large"></span>
+			    	</button>
+			    	Next
+			    </form>
+			</div>
+			<div class="col ">
+				<form class="text-center text-light" id="prev_form" name="last">
+		    		<button class="btn btn-light player-control" id="last_file_btn">
+						<!-- <i class="fas color-dark fa-step-forward fa-2x"></i> -->
+						<span class="icon-angle-double-right icon-large"></span>
+		    		</button>
+		    		Last
+		    	</form>
+			</div>
+		</div>
+		<div class="row-1 mt-3 text-light">
+			<div class="col">
+				<input class="" id="autoplay-checkbox" type="checkbox" aria-label="autoplay">
+				<label for="autoplay-checkbox" class="text-small mt-3">Autoplay</label>
+			</div>
+		</div>
+		<div class="row-1 text-light">
+			<div class="col">
+				<input class="" id="hide-annotated" type="checkbox" aria-label="hide-annotated">
+				<label for="hide-annotated" class="text-small mt-3">Hide annotated files </label>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Annotation forms -->
+	<div  class="col-8 annotation-form-container">
+		<div class="card w-100 h-100" style="width: 18rem;">
+			<div class="card-header text-center">
+				<h5 class="card-title">Annotate file</h5>
+			</div>
+			<form method="post" id="annotate_form" name="annotate_form">
+				<div class="card-body">
+					<div class="row">
+						<div class="col">
+							<p class="text-small"> Select class:</p>
+							<div class="classes-table">
+								<div class="list-group">
+									<div class="clearfix split-items" id="class-list"> 
+										{% for class_row in annot["classes"] | batch(2)%}
+										    {% if class_row[1] %}
+												<a href="#" class="py-1 text-center list-group-item list-group-item-action left-side" value="{{class_row[0].index}}">{{class_row[0].class_label}} ({{class_row[0].index}})</a> 
+
+												<a href="#" class="py-1 text-center list-group-item list-group-item-action right-side" value="{{class_row[1].index}}">{{class_row[1].class_label}} ({{class_row[1].index}})</a> 
+										
+											{% else %}
+												<a href="#" class="py-1 text-center list-group-item list-group-item-action left-side" value="{{class_row[0].index}}">{{class_row[0].class_label}} ({{class_row[0].index}})</a> 
+												<a href="#" class="py-1 list-group-item list-group-item-dark disabled right-side">&nbsp</a> 
+											{% endif %}
+
+										{% endfor %}
+								    </div> 
+								</div>
+							</div>
+							<label for="obs" class="text-small mt-3">Obs. (optional)</label>
+							<textarea class="form-control" rows=2 id="obs"></textarea>
+						</div>
+					</div>
+				</div>
+				<div class="card-footer text-muted">
+					<input type="submit" class="btn btn-success btn-block" value="Submit">
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<div class="row annotate-row">
+	<div class="col">
+		<form method="post" id="save-annotation-form">
+			<button type="submit" class="mt-2 btn btn-info float-right">
+			<span class="icon-download3"></span> Download annotation
+		</form>			
+	</div>
+</div>
+
+<div class="modal fade" id="exit-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Leave session?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>You are about to leave the session. <b>You will lose all annotation progress so far.</b> You can still go back and save your work.</p>
+      </div>
+      <div class="modal-footer">
+        <a type="button" href="{{ url_for('index') }}" class="btn btn-primary">Leave</a>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+ <script type="text/javascript">
+ 	$(document).ready(function() {
+ 		$(".navbar-brand").attr("data-toggle", "modal");
+ 		$(".navbar-brand").attr("data-target", "#exit-modal");
+ 		// Iterate files
+ 		$("#next_form, #prev_form, #first_form, #last_form").on("submit", function(e) {
+		    e.preventDefault();
+		    var action = $(this).attr('name')
+		    var hide_annotated = $('#hide-annotated').is(":checked");
+		    $.ajax({
+		    	type: "POST",
+		        url: "{{ url_for('iterate_files') }}",
+		        data: {
+		        	'action': action,
+		        	'hide-annotated': hide_annotated
+		        },
+		        success: function(response) {
+		        	$(".player-core").html(response);	
+		        	if ($('#autoplay-checkbox').is(":checked")) {
+		        		$('audio').trigger('play')
+		        	}
+			    },
+	    	});
+		});
+ 		// Hide annotated
+ 		$('#hide-annotated').on("change", function(e){
+ 			e.preventDefault();	
+ 			$("#first_file_btn").click()
+			// var hide_annotated = $('#hide-annotated').is(":checked");
+		 //    $.ajax({
+		 //    	type: "POST",
+		 //        url: "{{ url_for('iterate_files') }}",
+		 //        data: {
+		 //        	'action': '',
+		 //        	'hide-annotated': hide_annotated
+		 //        },
+		 //        success: function(response) {
+		 //        	$(".player-core").html(response);	
+		 //        	if ($('#autoplay-checkbox').is(":checked")) {
+		 //        		$('audio').trigger('play')
+		 //        	}
+			//     },
+	  //   	});
+ 		});
+
+ 		// Class list selector
+ 		$('#class-list a').first().addClass('active').focus();
+ 		// // Navigation
+ 		$('#class-list a').on("keydown", function(e){
+ 			switch(e.key) {
+		        case "Left": // IE/Edge specific value
+    			case "ArrowLeft":
+    				var active = $(".list-group a.active").index() - 1;
+    				$(".list-group .list-group-item").removeClass("active");
+    				$($(".list-group .list-group-item").get(active)).addClass("active");
+		        break;
+
+		        case "Right": // IE/Edge specific value
+			    case "ArrowRight":
+			    	var active = $(".list-group a.active").index() + 1;
+			    	$(".list-group .list-group-item").removeClass("active");
+			    	$($(".list-group .list-group-item").get(active)).addClass("active");
+		        break;
+
+		        case "Enter":
+					$("#annotate_form").submit();
+					break;
+
+				case "Tab":
+					 $("#obs").focus();
+			    break;
+
+		        default: return; // exit this handler for other keys
+		    }
+		    e.preventDefault();
+ 		});
+ 		$('#obs').on("keydown", function(e){
+ 			switch(e.key) {
+		        case "Enter":
+					$("#annotate_form").submit();
+					break;
+		        default: return; // exit this handler for other keys
+		    }
+		    e.preventDefault();
+ 		});
+
+ 		// // Selection
+ 		$('#class-list a').on("click", function(e) {
+ 			e.preventDefault();
+ 			$(".list-group .list-group-item").removeClass("active");
+   			$(e.target).addClass("active");
+ 		});
+
+ 		// Submit single file annotation to backend
+		$("#annotate_form").on("submit", function(e) {
+		    e.preventDefault();
+		    var selected_class = $(".list-group a.active").attr('value');
+		    var obs = $("#obs").val();
+		    var filename = $('.player-core > .fileinfo > p > #filename').text();
+		    
+		    $.ajax({
+		    	type: "POST",
+		        url: "{{ url_for('submit_annotation') }}",
+		        data: {
+		        	'class_idx': selected_class,
+		        	'obs': obs,
+		        	'filename': filename,
+		        	'meta': {
+		        		'hide-annotated': $('#hide-annotated').is(":checked"),
+		        	},
+		        },
+		        success: function(response) {
+		        	$("#obs").val("");
+		        	// $("#next_file_btn").click()
+		        	$('#class-list a').focus();
+		        	$(".player-core").html(response);	
+		        	if ($('#autoplay-checkbox').is(":checked")) {
+		        		$('audio').trigger('play');
+		        	}
+			    },
+	    	});
+		});
+
+		// Save annotation form
+		$("#save-annotation-form").on("submit", function(e) {
+		    e.preventDefault();
+		    window.location = "{{ url_for('download_annotation') }}"
+		});
+	});
+</script>
+{% endblock %}
+

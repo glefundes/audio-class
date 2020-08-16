@@ -1,0 +1,16 @@
+{% if annot %}
+
+<div class="card">
+	<h4 class="card-header">Session info</h4>
+	<div class="card-body">
+		<p class="card-text">{{ annotated }} Already annotated files in {{ annot['classes']|length }} registered classes</p>
+		{% with classes=annot['classes'], display_only=True %}
+			{% include 'class_table.html' %}
+		{% endwith %}
+	</div>
+	<div class="card-footer text-muted">
+	</div>
+</div>
+
+{% endif %}
+
