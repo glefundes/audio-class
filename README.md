@@ -20,7 +20,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/glefundes/audio-class-annotation-tool">
-    <img src="readme_imgs/logo-img.png" alt="Logo" height="110">
+    <img src="readme_imgs/logo-img.png" alt="Logo" width="600">
   </a>
   <p align="center">
     A simple, straightforward tool for class annotation of audio files
