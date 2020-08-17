@@ -20,7 +20,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/glefundes/audio-class-annotation-tool">
-    <img src="readme-imgs/logo-img.png" alt="Logo" height="80">
+    <img src="readme_imgs/logo-img.png" alt="Logo" height="110">
   </a>
   <p align="center">
     A simple, straightforward tool for class annotation of audio files
@@ -47,7 +47,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 <p align="center">
-    <img src="readme-imgs/annotation-session.png">
+    <img src="readme_imgs/annotation-session.png">
 </p>
 
 This project came to life when I was messing around with a prototype of a neural network for audio classification. I needed a way to annotate some scrapped data that I collected, but was too lazy to open each of the hundreds of files and manually write down their respective classifications. 
@@ -106,7 +106,7 @@ Now just navigate to `localhost:5000/` in your browser and you're set :)
 ### Setting up an annotation session
 In the startup menu, click 'New Session' and the class setup prompt will appear. You need to setup at least 2 unique class labels in order to begin annotating.
 <p align="center">
-    <img src="readme-imgs/annotation-setup.png">
+    <img src="readme_imgs/annotation-setup.png">
 </p>
 
 ### Annotating files
