@@ -92,7 +92,7 @@ pip install -r requirements.txt
 ## Usage
 
 ### Audio files
-Currently the system is limited to recognize .mp3, .wav, and .ogg files. It may work with other formats but it's not tested. You can try by adding new extensions to the [accepted formats list here](https://github.com/glefundes/audio-class/blob/7dc6bd70c434cfb4e47cb9393118113514d7df92/app/utils.py#L7).
+Currently the system is limited to recognize .mp3, .wav, and .ogg files. It may work with other formats but it's not tested. You can try by adding new extensions to the [accepted formats list here](https://github.com/glefundes/audio-class/blob/master/app/utils.py#L7).
 
 To expose your data to the app, move all the audio files you wish to annotate to the `audio_data/` folder located in the project's root
 
