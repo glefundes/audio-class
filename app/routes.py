@@ -154,3 +154,4 @@ def submit_annotation():
     session.modified = True
     return render_template('player.html', files=files, file_idx=session['file_idx'])
     # return ('', 204)
+
